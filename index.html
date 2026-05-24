@@ -48,4 +48,99 @@
     .widget-status-dot { width: 14px; height: 14px; border-radius: 50%; background-color: #747f8d; border: 3px solid #111; position: absolute; bottom: -2px; right: -2px; }
     
     .social-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
-    .social-icon { width: 42px; height: 42px; background: rgba(135, 206, 235, 0.15); border:
+    .social-icon { width: 42px; height: 42px; background: rgba(135, 206, 235, 0.15); border: 2px solid rgba(135, 206, 235, 0.12); border-radius: 50%; display: flex; justify-content: center; align-items: center; text-decoration: none; cursor: pointer; transition: 0.3s; color: var(--primary); overflow: hidden; }
+    .social-icon img { width: 22px; height: 22px; object-fit: contain; }
+    .social-icon:hover { background: rgba(135, 206, 235, 0.3); transform: scale(1.1); }
+    
+    .btn-list { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+    .links-card { background: linear-gradient(90deg, rgba(135, 206, 235, 0.2) 0%, rgba(13, 13, 13, 0.8) 100%); border: 2px solid rgba(135, 206, 235, 0.2); padding: 18px 30px; border-radius: 12px; color: var(--primary); text-decoration: none !important; font-weight: 600; font-size: 17px; display: flex; justify-content: space-between; cursor: pointer; align-items: center; margin-bottom: 15px; transition: all 0.3s ease; }
+    .links-card:hover { border-color: var(--primary); transform: scale(1.02); }
+    
+    .badge-18 { font-size: 11px; background: rgba(135, 206, 235, 0.3); color: #fff; padding: 2px 6px; border-radius: 6px; margin-left: 8px; }
+    .age-gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 5, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; }
+    .age-gate-box { background: #111; border: 2px solid var(--primary); border-radius: 20px; padding: 40px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <script src="https://unpkg.com/shimeji-js"></script>
+  <script>
+    window.onload = function() { new Shimeji({ directory: 'https://unpkg.com/shimeji-js/assets/', sprite: 'cat' }); };
+  </script>
+
+  <div id="age-gate" class="age-gate-overlay">
+    <div class="age-gate-box">
+      <h2 style="color:white; margin-bottom: 20px;">Confirm Age</h2>
+      <button onclick="go()" style="padding:12px 35px; border-radius:30px; background:var(--primary); border:none; font-weight:bold; cursor:pointer;">Yes (18+)</button>
+      <button onclick="hide()" style="padding:12px 35px; border-radius:30px; background:transparent; color:white; border:1px solid white; cursor:pointer; margin-left:10px;">Close</button>
+    </div>
+  </div>
+
+  <div class="bg-layer"></div>
+  <div class="main-wrapper">
+    <div class="profile-card">
+      <div class="avatar-box"><img id="avatar" class="avatar-img" src="https://r2.guns.lol/315ca1f2-f200-4a1c-863b-e412a4d7903c.webp"></div>
+      <h1>reekey<i class="fa-solid fa-circle-check" style="font-size:20px;"></i></h1>
+      <div class="sub-bio">Hey, schön dass du hergefunden hast. Ich bin Nox, ein 28 jähriger Furry aus Deutschland.</div>
+
+      <div class="guns-discord-widget" onclick="window.open('https://discord.com/users/1104903295438434365', '_blank')">
+        <div style="position:relative;">
+            <img style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" src="https://r2.guns.lol/315ca1f2-f200-4a1c-863b-e412a4d7903c.webp">
+            <div id="widget-dot" class="widget-status-dot"></div>
+        </div>
+        <div style="color:white; text-align:left; margin-left:15px;">
+            <div style="font-weight:700;">reekey_</div>
+            <div id="widget-activity" style="color:var(--primary); font-size:12px; font-weight:600;">Status</div>
+        </div>
+      </div>
+      
+      <div class="social-row">
+        <a class="social-icon" href="https://discord.com/invite/nRTbXGepUT"><i class="fab fa-discord"></i></a>
+        <a class="social-icon" href="https://instagram.com/reekeyuwu"><i class="fab fa-instagram"></i></a>
+        <a class="social-icon" href="https://tiktok.com/@reekey"><i class="fab fa-tiktok"></i></a>
+        <a class="social-icon" href="https://bsky.app/profile/reekey.de"><img src="https://cdn.simpleicons.org/bluesky" alt="Bluesky"></a>
+        <a class="social-icon" href="https://t.me/reekeyuwu"><i class="fab fa-telegram"></i></a>
+        <a class="social-icon" onclick="gate('https://t.me/reekeyad')"><i class="fab fa-telegram" style="color:orange;"></i></a>
+        <a class="social-icon" href="https://barq.app/@reekey"><img src="https://r2.guns.lol/12468df9-0fa2-4803-9eff-17382fc79a12.webp" alt="Barq"></a>
+        <a class="social-icon" href="https://t.me/KyraFoxworks"><img src="https://r2.guns.lol/8caa2f3b-b000-4470-bdd4-e6a1e7d9e48e.webp" alt="Kyra"></a>
+      </div>
+      
+      <div class="btn-list">
+        <div class="links-card" onclick="gate('https://onlyfans.com/reekeyuwu')">
+            <span style="display:flex; align-items:center;"><img src="https://cdn.simpleicons.org/onlyfans" style="width:20px; margin-right:12px;">OnlyFans</span><span class="badge-18">18+</span>
+        </div>
+        <a href="https://x.com/Protogen_Nox" class="links-card" style="text-decoration:none !important;">
+            <span style="display:flex; align-items:center;"><i class="fab fa-x-twitter" style="margin-right:12px;"></i>X (Twitter)</span>
+        </a>
+        <div class="links-card" onclick="gate('https://t.me/s/reekeyad')">
+            <span style="display:flex; align-items:center;"><i class="fab fa-telegram" style="margin-right:12px;"></i>Telegram Channel</span><span class="badge-18">18+</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let url = "";
+    function gate(u) { url = u; document.getElementById('age-gate').style.display='flex'; }
+    function hide() { document.getElementById('age-gate').style.display='none'; }
+    function go() { window.open(url, '_blank'); hide(); }
+
+    async function updateStatus() {
+        try {
+            const res = await fetch('https://api.lanyard.rest/v1/users/1104903295438434365');
+            const data = await res.json();
+            if (data.success) {
+                const s = data.data.discord_status;
+                const dot = document.getElementById('widget-dot');
+                const text = document.getElementById('widget-activity');
+                const colors = { 'online': '#43b581', 'idle': '#faa61a', 'dnd': '#f04747', 'offline': '#747f8d' };
+                if(dot) dot.style.backgroundColor = colors[s] || '#747f8d';
+                if(text) text.innerText = s.charAt(0).toUpperCase() + s.slice(1);
+            }
+        } catch(e) {}
+    }
+    updateStatus();
+    setInterval(updateStatus, 10000);
+  </script>
+</body>
+</html>
