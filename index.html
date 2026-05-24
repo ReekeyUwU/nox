@@ -128,28 +128,50 @@
     </div>
   </div>
 
+
   <script>
     let url = "";
     function gate(u) { url = u; document.getElementById('age-gate').style.display='flex'; }
     function hide() { document.getElementById('age-gate').style.display='none'; }
     function go() { window.open(url, '_blank'); hide(); }
-
+    
+    // Altersprüfung beim Start
+    function enterSite() {
+        document.getElementById('age-gate').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        new Shimeji({ directory: 'https://unpkg.com/shimeji-js/assets/', sprite: 'cat' });
+    }
+    
     async function updateStatus() {
         try {
             const res = await fetch('https://api.lanyard.rest/v1/users/324617277393600513');
-            const data = await res.json();
-            if (data.success) {
-                const s = data.data.discord_status;
+            const json = await res.json();
+            if (json.success) {
+                const d = json.data;
                 const dot = document.getElementById('widget-dot');
                 const text = document.getElementById('widget-activity');
+                
                 const colors = { 'online': '#43b581', 'idle': '#faa61a', 'dnd': '#f04747', 'offline': '#747f8d' };
-                if(dot) dot.style.backgroundColor = colors[s] || '#747f8d';
-                if(text) text.innerText = s.charAt(0).toUpperCase() + s.slice(1);
+                if(dot) dot.style.backgroundColor = colors[d.discord_status] || '#747f8d';
+                
+                // Priorität: Spotify > Spiel > Status
+                if (d.spotify) {
+                    text.innerText = `🎵 ${d.spotify.song} – ${d.spotify.artist}`;
+                } else {
+                    // Suche nach der ersten Aktivität vom Typ 0 (Spiel)
+                    const game = d.activities.find(a => a.type === 0);
+                    if (game) {
+                        text.innerText = `🎮 ${game.name}`;
+                    } else {
+                        text.innerText = d.discord_status.charAt(0).toUpperCase() + d.discord_status.slice(1);
+                    }
+                }
             }
-        } catch(e) {}
+        } catch(e) { console.error("Lanyard-Fehler:", e); }
     }
+    
     updateStatus();
-    setInterval(updateStatus, 10000);
+    setInterval(updateStatus, 10000); // Intervall auf 10 Sek für flüssigeres Update
   </script>
 </body>
 </html>
