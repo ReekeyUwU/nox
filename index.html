@@ -33,7 +33,7 @@
         filter: brightness(0.4); 
     }
     
-    .main-wrapper { position: relative; z-index: 2; min-height: 100vh; width: 100%; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .main-wrapper { position: relative; z-index: 2; min-height: 100vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
     
     .profile-card { 
         width: 100%; max-width: 640px; 
@@ -66,6 +66,11 @@
     .badge-18 { font-size: 11px; background: rgba(70, 130, 180, 0.4); color: white; padding: 2px 6px; border-radius: 6px; margin-left: 8px; }
     .age-gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; display: none; justify-content: center; align-items: center; }
     .age-gate-box { background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 40px; text-align: center; }
+    
+    /* Footer Styles */
+    .footer { margin-top: 25px; color: var(--accent); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: bold; }
+    .footer-heart { width: 18px; height: 18px; object-fit: contain; }
   </style>
 </head>
 <body>
@@ -126,8 +131,11 @@
         </div>
       </div>
     </div>
+    
+    <div class="footer">
+      made with <img src="https://r2.guns.lol/1912807f-cf6b-4e1b-99d7-ecf92736111f.webp" class="footer-heart"> from <a href="https://Reekey.de">Reekey.de</a>
+    </div>
   </div>
-
 
   <script>
     let url = "";
@@ -135,11 +143,9 @@
     function hide() { document.getElementById('age-gate').style.display='none'; }
     function go() { window.open(url, '_blank'); hide(); }
     
-    // Altersprüfung beim Start
     function enterSite() {
         document.getElementById('age-gate').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        new Shimeji({ directory: 'https://unpkg.com/shimeji-js/assets/', sprite: 'cat' });
     }
     
     async function updateStatus() {
@@ -154,11 +160,9 @@
                 const colors = { 'online': '#43b581', 'idle': '#faa61a', 'dnd': '#f04747', 'offline': '#747f8d' };
                 if(dot) dot.style.backgroundColor = colors[d.discord_status] || '#747f8d';
                 
-                // Priorität: Spotify > Spiel > Status
                 if (d.spotify) {
                     text.innerText = `🎵 ${d.spotify.song} – ${d.spotify.artist}`;
                 } else {
-                    // Suche nach der ersten Aktivität vom Typ 0 (Spiel)
                     const game = d.activities.find(a => a.type === 0);
                     if (game) {
                         text.innerText = `🎮 ${game.name}`;
@@ -171,7 +175,7 @@
     }
     
     updateStatus();
-    setInterval(updateStatus, 10000); // Intervall auf 10 Sek für flüssigeres Update
+    setInterval(updateStatus, 10000);
   </script>
 </body>
 </html>
