@@ -8,7 +8,7 @@
   <meta property="og:title" content="Nox | Blu | Welcome to my universe">
   <meta property="og:description" content="Check out my profiles, links, and updates.">
   <meta property="og:image" content="https://link.nox.contact/assets/img/1_1767471992.jpg">
-  <meta property="og:url" content="https://reekeyuwu.github.io/">
+  <meta property="og:url" content="https://nox.contact/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -67,10 +67,10 @@
     .age-gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; display: none; justify-content: center; align-items: center; }
     .age-gate-box { background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 40px; text-align: center; }
     
-    /* Footer Styles */
-    .footer { margin-top: 25px; color: var(--accent); font-size: 14px; display: flex; align-items: center; gap: 6px; }
+    /* Footer & Zähler */
+    .footer { margin-top: 25px; color: var(--accent); font-size: 14px; text-align: center; }
     .footer a { color: var(--primary); text-decoration: none; font-weight: bold; }
-    .footer-heart { width: 18px; height: 18px; object-fit: contain; }
+    .view-counter-box { background: rgba(70, 130, 180, 0.2); padding: 5px 12px; border-radius: 8px; color: var(--primary); font-weight: bold; border: 1px solid rgba(70, 130, 180, 0.3); margin-bottom: 10px; display: inline-block; }
   </style>
 </head>
 <body>
@@ -95,7 +95,7 @@
       <h1>Nox | Blu<i class="fa-solid fa-circle-check" style="font-size:20px;"></i></h1>
       <div class="sub-bio">Hey, schön dass du hergefunden hast. Ich bin Nox, ein 29 jähriger Furry aus Deutschland.</div>
 
-      <div class="guns-discord-widget" onclick="window.open('https://discord.com/users/1104903295438434365', '_blank')">
+      <div class="guns-discord-widget" onclick="window.open('https://discord.com/users/324617277393600513', '_blank')">
         <div style="position:relative;">
             <img style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" src="https://link.nox.contact/assets/img/1_1767471992.jpg">
             <div id="widget-dot" class="widget-status-dot"></div>
@@ -133,6 +133,7 @@
     </div>
     
     <div class="footer">
+      <div class="view-counter-box">Besucher: <span id="view-count">...</span></div><br>
       made with ❤️​ from <a href="https://Reekey.de">Reekey.de</a>
     </div>
   </div>
@@ -143,10 +144,11 @@
     function hide() { document.getElementById('age-gate').style.display='none'; }
     function go() { window.open(url, '_blank'); hide(); }
     
-    function enterSite() {
-        document.getElementById('age-gate').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-    }
+    // Zähler laden (Ersetze die URL mit deiner neuen Worker-URL!)
+    fetch('https://holy-hall-8bc5.morning-surf-02e1.workers.dev/')
+      .then(response => response.text())
+      .then(data => { document.getElementById('view-count').innerText = data; })
+      .catch(err => { console.error('Counter error', err); });
     
     async function updateStatus() {
         try {
