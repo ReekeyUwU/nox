@@ -60,11 +60,11 @@
         fetch('https://link-tracker2.morning-surf-02e1.workers.dev/stats')
             .then(res => res.json())
             .then(data => {
-                const views = data['nox_contact_views'] || 0;
+                const views = data['reekey_de_views'] || 0;
                 document.getElementById('page-views').innerText = "Gesamt-Aufrufe: " + views;
                 
                 const listData = Object.entries(data)
-                    .filter(e => e[0] !== 'nox_contact_views')
+                    .filter(e => e[0] !== 'reekey_de_views')
                     .sort((a, b) => b[1] - a[1]);
                 
                 const container = document.getElementById('stats-container');
