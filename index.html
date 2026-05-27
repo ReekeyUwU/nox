@@ -139,7 +139,7 @@
 
   <script>
     let url = "";
-    const TRACKER_URL = 'https://link-tracker2.morning-surf-02e1.workers.dev/';
+    const TRACKER_URL = 'https://link-tracker2.morning-surf-02e1.workers.dev/stats';
 
     function track(name, u) { 
       fetch(TRACKER_URL, { method: 'POST', body: JSON.stringify({ link: name }) }); 
