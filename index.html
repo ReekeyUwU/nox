@@ -141,14 +141,32 @@
     let url = "";
     const TRACKER_URL = 'https://link-tracker2.morning-surf-02e1.workers.dev/track';
 
-    function track(name, u) { 
-      fetch(TRACKER_URL, { method: 'POST', body: JSON.stringify({ link: name }) }); 
-      if (u) window.open(u, '_blank'); 
+    // 1. Automatischer View-Zähler beim Laden der Seite
+    fetch(TRACKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link: 'reekey_de_views' })
+    }).catch(e => console.error("View-Count konnte nicht gesendet werden:", e));
+
+    // 2. Deine Klick-Tracking Funktion
+    function track(name, u) {
+      fetch(TRACKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link: name })
+      }).catch(e => console.error("Tracking error:", e));
+      
+      if (u) window.open(u, '_blank');
     }
-    
+
+    // 3. Deine Age-Gate Funktion
     function gate(u, name) { 
       url = u; 
-      fetch(TRACKER_URL, { method: 'POST', body: JSON.stringify({ link: name }) }); 
+      fetch(TRACKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link: name })
+      }).catch(e => console.error("Tracking error:", e));
       document.getElementById('age-gate').style.display='flex'; 
     }
     
