@@ -141,12 +141,24 @@
     let url = "";
     const TRACKER_URL = 'https://link-tracker2.morning-surf-02e1.workers.dev/track';
 
-    // 1. Automatischer View-Zähler beim Laden der Seite
-    fetch(TRACKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ link: 'reekey_de_views' })
-    }).catch(e => console.error("View-Count konnte nicht gesendet werden:", e));
+    // 1. Automatischer View-Zähler (mit Session-Check)
+    function countView() {
+        // Prüfen, ob für diese Session bereits ein View gezählt wurde
+        if (!sessionStorage.getItem('viewed_reekey')) {
+            fetch(TRACKER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ link: 'reekey_de_views' })
+            })
+            .then(() => {
+                // Markierung setzen, damit kein erneuter Count in dieser Sitzung erfolgt
+                sessionStorage.setItem('viewed_reekey', 'true');
+            })
+            .catch(e => console.error("View-Count konnte nicht gesendet werden:", e));
+        }
+    }
+    // Funktion sofort beim Laden aufrufen
+    countView();
 
     // 2. Deine Klick-Tracking Funktion
     function track(name, u) {
