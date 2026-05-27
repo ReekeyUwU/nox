@@ -15,83 +15,113 @@
         body { 
             background: var(--bg); 
             color: var(--primary); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            font-family: -apple-system, sans-serif; 
             display: flex; justify-content: center; padding: 20px; margin: 0; 
         }
 
         .box { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(10px);
-            padding: 30px; 
-            border-radius: 20px; 
+            background: var(--card-bg); backdrop-filter: blur(10px);
+            padding: 30px; border-radius: 20px; 
             border: 1px solid rgba(70, 130, 180, 0.3); 
             width: 100%; max-width: 600px;
             box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
 
+        /* Passwort Overlay */
+        #pw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        input { padding: 10px; border-radius: 5px; border: 1px solid var(--primary); background: #000; color: var(--primary); }
+        button { padding: 10px 20px; border-radius: 5px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
+        .logout-btn { margin-top: 20px; background: #333; color: white; width: 100%; }
+
         h1 { text-align: center; font-size: 22px; text-transform: uppercase; margin-bottom: 20px; color: var(--primary); }
-
-        .views-header { 
-            text-align: center; margin-bottom: 25px; color: white; 
-            font-size: 18px; font-weight: bold; padding: 15px; 
-            background: rgba(70, 130, 180, 0.2); border-radius: 12px; 
-        }
-
-        .row { 
-            background: rgba(70, 130, 180, 0.1); 
-            padding: 12px 20px; margin-bottom: 8px; 
-            border-radius: 12px; display: flex; 
-            justify-content: space-between; 
-            border-left: 4px solid var(--primary);
-        }
+        .views-header { text-align: center; margin-bottom: 25px; color: white; font-size: 18px; font-weight: bold; padding: 15px; background: rgba(70, 130, 180, 0.2); border-radius: 12px; }
+        .row { background: rgba(70, 130, 180, 0.1); padding: 12px 20px; margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; border-left: 4px solid var(--primary); }
     </style>
 </head>
 <body>
-    <div class="box">
+
+    <div id="pw-overlay">
+        <div>
+            <input type="password" id="pw-input" placeholder="Passwort eingeben">
+            <button onclick="checkPassword()">Login</button>
+        </div>
+    </div>
+
+    <div class="box" id="stats-content" style="display:none;">
         <h1>Live-Statistiken</h1>
-        <div class="views-header" id="page-views">Seitenaufrufe: Lade...</div>
-        
+        <div class="views-header" id="page-views">Gesamt-Aufrufe: Lade...</div>
         <canvas id="statsChart" style="margin-bottom: 30px;"></canvas>
-        
         <div id="stats-container">Lade Link-Daten...</div>
+        
+        <button class="logout-btn" onclick="logout()">Ausloggen</button>
     </div>
 
     <script>
-        fetch('https://link-tracker2.morning-surf-02e1.workers.dev/stats')
-            .then(res => res.json())
-            .then(data => {
-                const views = data['reekey_de_views'] || 0;
-                document.getElementById('page-views').innerText = "Gesamt-Aufrufe: " + views;
-                
-                const listData = Object.entries(data)
-                    .filter(e => e[0] !== 'reekey_de_views')
-                    .sort((a, b) => b[1] - a[1]);
-                
-                const container = document.getElementById('stats-container');
-                container.innerHTML = listData.map(([link, clicks]) => `
-                    <div class="row"><span>${link.replace('_', ' ')}</span><b>${clicks} Klicks</b></div>
-                `).join('');
+        const PASSWORT = "DeinGeheimesPasswort"; // HIER DEIN PASSWORT EINTRAGEN
 
-                new Chart(document.getElementById('statsChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: listData.map(e => e[0].replace('_', ' ')),
-                        datasets: [{
-                            label: 'Klicks',
-                            data: listData.map(e => e[1]),
-                            backgroundColor: '#4682B4'
-                        }]
-                    },
-                    options: { 
-                        indexAxis: 'y', 
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { ticks: { color: '#B0C4DE' } },
-                            y: { ticks: { color: '#B0C4DE' } }
+        // 1. Session prüfen
+        if (sessionStorage.getItem('isLoggedInNox') === 'true') {
+            showStats();
+        }
+
+        // 2. Enter-Taste für Passwortfeld
+        document.getElementById('pw-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        function checkPassword() {
+            if (document.getElementById('pw-input').value === PASSWORT) {
+                sessionStorage.setItem('isLoggedInNox', 'true');
+                showStats();
+            } else {
+                alert("Falsches Passwort!");
+            }
+        }
+
+        function showStats() {
+            document.getElementById('pw-overlay').style.display = 'none';
+            document.getElementById('stats-content').style.display = 'block';
+            loadStats();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isLoggedInNox');
+            location.reload();
+        }
+
+        function loadStats() {
+            fetch('https://link-tracker2.morning-surf-02e1.workers.dev/stats')
+                .then(res => res.json())
+                .then(data => {
+                    const views = data['reekey_de_views'] || 0;
+                    document.getElementById('page-views').innerText = "Gesamt-Aufrufe: " + views;
+                    
+                    const listData = Object.entries(data)
+                        .filter(e => e[0] !== 'reekey_de_views')
+                        .sort((a, b) => b[1] - a[1]);
+                    
+                    const container = document.getElementById('stats-container');
+                    container.innerHTML = listData.map(([link, clicks]) => `
+                        <div class="row"><span>${link.replace('_', ' ')}</span><b>${clicks} Klicks</b></div>
+                    `).join('');
+
+                    new Chart(document.getElementById('statsChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: listData.map(e => e[0].replace('_', ' ')),
+                            datasets: [{ label: 'Klicks', data: listData.map(e => e[1]), backgroundColor: '#4682B4' }]
+                        },
+                        options: { 
+                            indexAxis: 'y', 
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { ticks: { color: '#B0C4DE' } },
+                                y: { ticks: { color: '#B0C4DE' } }
+                            }
                         }
-                    }
+                    });
                 });
-            });
+        }
     </script>
 </body>
 </html>
