@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>reekey | Live-Stats</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #050505; color: #00ff08; font-family: -apple-system, sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .box { background: rgba(13, 13, 13, 0.8); padding: 30px; border-radius: 20px; border: 1px solid rgba(0, 255, 8, 0.3); width: 100%; max-width: 600px; }
+        h1 { text-align: center; font-size: 20px; text-transform: uppercase; margin-bottom: 5px; }
+        .views-header { text-align: center; margin-bottom: 25px; color: #fff; font-size: 18px; font-weight: bold; padding: 10px; background: rgba(0, 255, 8, 0.1); border-radius: 10px; }
+        .row { background: rgba(0, 255, 8, 0.05); padding: 12px 20px; margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; border-left: 3px solid #00ff08; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>Live-Statistiken</h1>
+        <div class="views-header" id="page-views">Seitenaufrufe: Lade...</div>
+        
+        <canvas id="statsChart" style="margin-bottom: 30px;"></canvas>
+        
+        <div id="stats-container">Lade Link-Daten...</div>
+    </div>
+
+    <script>
+        fetch('https://link-tracker2.morning-surf-02e1.workers.dev/stats')
+            .then(res => res.json())
+            .then(data => {
+                // 1. Views extrahieren
+                const views = data['reekey_de_views'] || 0;
+                document.getElementById('page-views').innerText = "Gesamt-Aufrufe (nox.contact): " + views;
+                
+                // 2. Daten für die Liste filtern (View-Counter ausblenden)
+                const listData = Object.entries(data)
+                    .filter(e => e[0] !== 'reekey_de_views')
+                    .sort((a, b) => b[1] - a[1]);
+                
+                const container = document.getElementById('stats-container');
+                container.innerHTML = listData.map(([link, clicks]) => `
+                    <div class="row"><span>${link.replace('_', ' ')}</span><b>${clicks} Klicks</b></div>
+                `).join('');
+
+                // 3. Diagramm erstellen
+                new Chart(document.getElementById('statsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: listData.map(e => e[0].replace('_', ' ')),
+                        datasets: [{
+                            label: 'Klicks',
+                            data: listData.map(e => e[1]),
+                            backgroundColor: '#00ff08'
+                        }]
+                    },
+                    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+                });
+            });
+    </script>
+</body>
+</html>
