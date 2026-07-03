@@ -2,125 +2,331 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Nox | Live-Stats</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --primary: #4682B4;
             --accent: #B0C4DE;
             --bg: #050505;
-            --card-bg: rgba(20, 30, 45, 0.7);
+            --card-bg: rgba(20, 30, 45, 0.85);
         }
 
         body { 
-            background: var(--bg); 
-            color: var(--primary); 
-            font-family: -apple-system, sans-serif; 
-            display: flex; justify-content: center; padding: 20px; margin: 0; 
+            background: var(--bg); color: var(--primary); font-family: -apple-system, sans-serif; 
+            display: flex; justify-content: center; padding: 20px 10px; margin: 0; overflow-x: hidden; overflow-y: auto;
         }
+
+        #pw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-box { background: #111; border: 2px solid var(--primary); border-radius: 20px; padding: 30px 20px; text-align: center; width: 100%; max-width: 360px; box-shadow: 0 0 25px rgba(70, 130, 180, 0.2); }
+        .login-box div { display: flex; flex-direction: column; gap: 12px; }
+        input, .search-input { padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(70, 130, 180, 0.3); background: #000; color: var(--primary); text-align: center; outline: none; width: 100%; transition: all 0.3s; }
+        input:focus, .search-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(70, 130, 180, 0.3); }
+        input.error { border-color: #ff0055; color: #ff0055; }
+        
+        button { padding: 12px 20px; border-radius: 30px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: white; color: black; transform: scale(1.02); }
 
         .box { 
-            background: var(--card-bg); backdrop-filter: blur(10px);
-            padding: 30px; border-radius: 20px; 
-            border: 1px solid rgba(70, 130, 180, 0.3); 
-            width: 100%; max-width: 600px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            background: var(--card-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 25px 20px; border-radius: 20px; border: 1px solid rgba(70, 130, 180, 0.3); 
+            width: 100%; max-width: 620px; box-shadow: 0 0 30px rgba(0,0,0,0.8); display: flex; flex-direction: column;
         }
 
-        /* Passwort Overlay */
-        #pw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        input { padding: 10px; border-radius: 5px; border: 1px solid var(--primary); background: #000; color: var(--primary); }
-        button { padding: 10px 20px; border-radius: 5px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
-        .logout-btn { margin-top: 20px; background: #333; color: white; width: 100%; }
+        h1 { text-align: center; font-size: 24px; font-weight: 600; margin: 0 0 4px 0; color: var(--primary); }
+        
+        .live-bar { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: rgba(255, 255, 255, 0.4); margin: 6px 0 15px 0; }
+        .pulse { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; animation: blink 1.6s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-        h1 { text-align: center; font-size: 22px; text-transform: uppercase; margin-bottom: 20px; color: var(--primary); }
-        .views-header { text-align: center; margin-bottom: 25px; color: white; font-size: 18px; font-weight: bold; padding: 15px; background: rgba(70, 130, 180, 0.2); border-radius: 12px; }
-        .row { background: rgba(70, 130, 180, 0.1); padding: 12px 20px; margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; border-left: 4px solid var(--primary); }
+        .controls-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+        .filter-buttons { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+        .filter-btn { flex: 1; min-width: 70px; padding: 8px 4px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #888; font-weight: 600; font-size: 11px; cursor: pointer; transition: all 0.15s; text-align: center; }
+        .filter-btn.active { background: rgba(70, 130, 180, 0.2); border-color: var(--primary); color: var(--primary); }
+        .search-container { position: relative; width: 100%; }
+        .search-input { text-align: left; padding-left: 35px; font-size: 13px; padding-top: 8px; padding-bottom: 8px; }
+        .search-container i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(70, 130, 180, 0.5); font-size: 13px; }
+
+        .views-header { text-align: center; margin-bottom: 15px; color: white; font-size: 15px; font-weight: bold; padding: 10px; background: rgba(70, 130, 180, 0.2); border-radius: 12px; border: 1px solid rgba(70, 130, 180, 0.1); }
+        .chart-container { position: relative; width: 100%; min-height: 200px; margin-bottom: 20px; }
+        
+        .stats-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .row { background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(20, 30, 45, 0.5) 100%); padding: 12px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(70, 130, 180, 0.1); font-size: 14px; cursor: pointer; transition: all 0.2s; }
+        .row:hover { transform: translateX(3px); border-color: var(--primary); background: rgba(70, 130, 180, 0.05); }
+        
+        .row.top-winner { border-color: rgba(255, 215, 0, 0.4); background: linear-gradient(90deg, rgba(255, 215, 0, 0.05) 0%, rgba(20, 30, 45, 0.6) 100%); }
+        .row.top-winner span { color: #ffd700 !important; font-weight: bold; }
+        
+        .row-left { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+        .row-title { display: flex; align-items: center; gap: 6px; color: #fff; font-weight: 500; }
+        
+        .metrics-box { display: flex; gap: 6px; align-items: center; }
+        .ctr-badge { font-size: 10px; color: var(--accent); background: rgba(70, 130, 180, 0.1); padding: 1px 5px; border-radius: 4px; border: 1px solid rgba(70, 130, 180, 0.2); }
+        .trend-icon { font-size: 11px; font-weight: bold; }
+        .trend-up { color: #43b581; }
+        .trend-down { color: #ff0055; }
+        
+        .row b { color: var(--primary); background: rgba(70, 130, 180, 0.15); padding: 4px 8px; border-radius: 6px; font-size: 12px; letter-spacing: 0.5px; }
+        .row.top-winner b { color: #ffd700; background: rgba(255, 215, 0, 0.1); }
+
+        .utility-grid { display: flex; gap: 10px; margin-bottom: 15px; }
+        .sec-btn { flex: 1; background: #111; color: #aaa; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .sec-btn:hover { background: #222; color: #fff; }
+        .logout-btn { margin-top: 10px; background: #222; color: #888; width: 100%; border: 1px solid rgba(255,255,255,0.05); }
+        .logout-btn:hover { color: #ff0055; background: #111; border-color: rgba(255,0,85,0.2); }
+        
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { background: #111; border: 1px solid var(--primary); border-radius: 16px; width: 100%; max-width: 460px; padding: 20px; box-shadow: 0 0 30px rgba(70, 130, 180, 0.2); position: relative; }
+        .close-modal { position: absolute; top: 12px; right: 16px; color: #666; cursor: pointer; font-size: 20px; }
+        .close-modal:hover { color: #fff; }
+        .modal-box h3 { margin: 0 0 4px 0; font-size: 18px; color: #fff; text-transform: capitalize; }
+        .modal-subtitle { font-size: 12px; color: #666; margin-bottom: 15px; }
+        .modal-chart-container { position: relative; width: 100%; height: 180px; }
+        .error-msg { color: #ff0055; font-size: 13px; margin-top: 5px; display: none; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="pw-overlay">
-        <div>
-            <input type="password" id="pw-input" placeholder="Passwort eingeben">
-            <button onclick="checkPassword()">Login</button>
+        <div class="login-box">
+            <h2 style="color:white; font-size: 20px; margin: 0 0 20px 0;">Live-Stats Access</h2>
+            <div>
+                <input type="password" id="pw-input" placeholder="Passwort eingeben">
+                <div class="error-msg" id="login-error">Falsches Passwort!</div>
+                <button onclick="checkPassword()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+        <div class="modal-box">
+            <span class="close-modal" onclick="document.getElementById('detail-modal').style.display='none'">&times;</span>
+            <h3 id="modal-title">Link Name</h3>
+            <div class="modal-subtitle" id="modal-stats-summary">0 Klicks</div>
+            <div class="modal-chart-container"><canvas id="modalChart"></canvas></div>
         </div>
     </div>
 
     <div class="box" id="stats-content" style="display:none;">
-        <h1>Live-Statistiken</h1>
+        <h1><i class="fa-solid fa-chart-simple" style="margin-right:8px;"></i>Live-Statistiken</h1>
+        <div class="live-bar">
+            <div class="pulse"></div>
+            <span id="live-ticker">Zuletzt aktualisiert: Lade...</span>
+        </div>
         <div class="views-header" id="page-views">Gesamt-Aufrufe: Lade...</div>
-        <canvas id="statsChart" style="margin-bottom: 30px;"></canvas>
-        <div id="stats-container">Lade Link-Daten...</div>
         
+        <div class="controls-grid">
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="changeFilter('all', this)">Gesamt</button>
+                <button class="filter-btn" onclick="changeFilter('90d', this)">90 Tage</button>
+                <button class="filter-btn" onclick="changeFilter('60d', this)">60 Tage</button>
+                <button class="filter-btn" onclick="changeFilter('30d', this)">30 Tage</button>
+                <button class="filter-btn" onclick="changeFilter('14d', this)">14 Tage</button>
+                <button class="filter-btn" onclick="changeFilter('7d', this)">7 Tage</button>
+                <button class="filter-btn" onclick="changeFilter('1d', this)">Heute</button>
+            </div>
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search-input" id="search-bar" placeholder="Links durchsuchen..." oninput="renderList()">
+            </div>
+        </div>
+
+        <div class="chart-container"><canvas id="statsChart"></canvas></div>
+        <div class="stats-list" id="stats-container">Lade Link-Daten...</div>
+        
+        <div class="utility-grid">
+            <button class="sec-btn" onclick="exportData()"><i class="fa-solid fa-file-csv"></i> Exportieren</button>
+            <button class="sec-btn" onclick="loadStats()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
         <button class="logout-btn" onclick="logout()">Ausloggen</button>
     </div>
 
     <script>
-        const PASSWORT = "FuckMe"; // HIER DEIN PASSWORT EINTRAGEN
+        const PASSWORT = "FuckMe"; 
+        let chartInstance = null, modalChartInstance = null;
+        let globalRawData = { allTime: {}, history: {} };
+        let currentFilter = 'all'; 
+        let activeLinkData = []; 
 
-        // 1. Session prüfen
-        if (sessionStorage.getItem('isLoggedInNox') === 'true') {
-            showStats();
-        }
+        if (sessionStorage.getItem('isLoggedInNox') === 'true') { showStats(); }
 
-        // 2. Enter-Taste für Passwortfeld
-        document.getElementById('pw-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') checkPassword();
+        document.getElementById('pw-input').addEventListener('keypress', e => { if (e.key === 'Enter') checkPassword(); });
+        document.getElementById('pw-input').addEventListener('input', function() {
+            document.getElementById('login-error').style.display = 'none';
+            this.classList.remove('error');
         });
 
         function checkPassword() {
-            if (document.getElementById('pw-input').value === PASSWORT) {
-                sessionStorage.setItem('isLoggedInNox', 'true');
-                showStats();
-            } else {
-                alert("Falsches Passwort!");
-            }
+            const input = document.getElementById('pw-input');
+            if (input.value === PASSWORT) { sessionStorage.setItem('isLoggedInNox', 'true'); showStats(); } 
+            else { input.classList.add('error'); document.getElementById('login-error').style.display = 'block'; input.value = ""; }
         }
 
         function showStats() {
             document.getElementById('pw-overlay').style.display = 'none';
-            document.getElementById('stats-content').style.display = 'block';
+            document.getElementById('stats-content').style.display = 'flex';
             loadStats();
+            setInterval(loadStats, 10000); 
         }
 
-        function logout() {
-            sessionStorage.removeItem('isLoggedInNox');
-            location.reload();
-        }
+        function logout() { sessionStorage.removeItem('isLoggedInNox'); location.reload(); }
 
         function loadStats() {
             fetch('https://link-tracker2.morning-surf-02e1.workers.dev/stats')
                 .then(res => res.json())
                 .then(data => {
-                    const views = data['reekey_de_views'] || 0;
-                    document.getElementById('page-views').innerText = "Gesamt-Aufrufe: " + views;
-                    
-                    const listData = Object.entries(data)
-                        .filter(e => e[0] !== 'reekey_de_views')
-                        .sort((a, b) => b[1] - a[1]);
-                    
-                    const container = document.getElementById('stats-container');
-                    container.innerHTML = listData.map(([link, clicks]) => `
-                        <div class="row"><span>${link.replace('_', ' ')}</span><b>${clicks} Klicks</b></div>
-                    `).join('');
-
-                    new Chart(document.getElementById('statsChart'), {
-                        type: 'bar',
-                        data: {
-                            labels: listData.map(e => e[0].replace('_', ' ')),
-                            datasets: [{ label: 'Klicks', data: listData.map(e => e[1]), backgroundColor: '#4682B4' }]
-                        },
-                        options: { 
-                            indexAxis: 'y', 
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: { ticks: { color: '#B0C4DE' } },
-                                y: { ticks: { color: '#B0C4DE' } }
-                            }
-                        }
-                    });
+                    globalRawData = data;
+                    document.getElementById('live-ticker').innerText = `Zuletzt aktualisiert: ${new Date().toTimeString().split(' ')[0]} Uhr`;
+                    processAndRender();
+                })
+                .catch(() => {
+                    document.getElementById('stats-container').innerHTML = `<div style="color:#ff0055;"><i class="fa-solid fa-circle-exclamation"></i> Live-Verbindung unterbrochen...</div>`;
                 });
+        }
+
+        function changeFilter(filterType, btn) {
+            currentFilter = filterType;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            processAndRender();
+        }
+
+        function processAndRender() {
+            const allTimeData = globalRawData.allTime || {};
+            const historyData = globalRawData.history || {};
+            const viewsKey = 'reekey_de_views';
+            
+            let daysLimit = 9999;
+            if (currentFilter === '90d') daysLimit = 90;
+            else if (currentFilter === '60d') daysLimit = 60;
+            else if (currentFilter === '30d') daysLimit = 30;
+            else if (currentFilter === '14d') daysLimit = 14;
+            else if (currentFilter === '7d') daysLimit = 7;
+            else if (currentFilter === '1d') daysLimit = 1;
+
+            const now = new Date();
+            const filterDateLimit = new Date(now.setDate(now.getDate() - daysLimit)).toISOString().slice(0, 10);
+
+            function getFilteredClicks(link) {
+                if (currentFilter === 'all') return parseInt(allTimeData[link]) || 0;
+                if (!historyData[link]) return 0;
+                return historyData[link]
+                    .filter(item => item.date >= filterDateLimit)
+                    .reduce((sum, item) => sum + (parseInt(item.clicks) || 0), 0);
+            }
+
+            const currentViews = getFilteredClicks(viewsKey);
+            document.getElementById('page-views').innerText = `Aufrufe (${currentFilter === 'all' ? 'Gesamt' : currentFilter}): ` + currentViews.toLocaleString('de-DE');
+
+            activeLinkData = Object.keys(allTimeData).filter(k => k !== viewsKey).map(linkName => {
+                const clicks = getFilteredClicks(linkName);
+                const totalAllTime = parseInt(allTimeData[linkName]) || 0;
+                
+                let trendVal = 0;
+                if (historyData[linkName]) {
+                    const d7 = new Date(), d14 = new Date();
+                    const lim7 = new Date(d7.setDate(d7.getDate() - 7)).toISOString().slice(0,10);
+                    const lim14 = new Date(d14.setDate(d14.getDate() - 14)).toISOString().slice(0,10);
+                    
+                    const lastWeek = historyData[linkName].filter(i => i.date >= lim7).reduce((s,i) => s+i.clicks, 0);
+                    const prevWeek = historyData[linkName].filter(i => i.date >= lim14 && i.date < lim7).reduce((s,i) => s+i.clicks, 0);
+                    trendVal = prevWeek > 0 ? Math.round(((lastWeek - prevWeek) / prevWeek) * 100) : lastWeek * 10;
+                }
+
+                let chartLabels = [], chartValues = [];
+                if (historyData[linkName]) {
+                    const lastItems = historyData[linkName].slice(-7);
+                    chartLabels = lastItems.map(i => i.date.slice(5));
+                    chartValues = lastItems.map(i => i.clicks);
+                }
+
+                return {
+                    name: linkName, clicks, totalAllTime,
+                    ctr: currentViews > 0 ? ((clicks / currentViews) * 100).toFixed(1) : 0,
+                    trend: trendVal, chartLabels, chartValues
+                };
+            }).sort((a, b) => b.clicks - a.clicks);
+
+            renderList();
+        }
+
+        function renderList() {
+            const searchWord = document.getElementById('search-bar').value.toLowerCase();
+            const filteredData = activeLinkData.filter(item => item.name.replace(/_/g, ' ').toLowerCase().includes(searchWord));
+            const container = document.getElementById('stats-container');
+
+            if (filteredData.length === 0) { container.innerHTML = `<div style="color:#666; font-size:13px; padding:15px;">Keine Links gefunden.</div>`; return; }
+
+            container.innerHTML = filteredData.map((item, index) => {
+                const isTopWinner = index === 0 && currentFilter === 'all' && searchWord === '';
+                const trendClass = item.trend >= 0 ? 'trend-icon trend-up' : 'trend-icon trend-down';
+                const trendArrow = item.trend >= 0 ? `↑ ${item.trend}%` : `↓ ${Math.abs(item.trend)}%`;
+
+                return `
+                    <div class="${isTopWinner ? 'row top-winner' : 'row'}" onclick="openDetails('${item.name}')">
+                        <div class="row-left">
+                            <div class="row-title">${isTopWinner ? '<i class="fa-solid fa-crown" style="color:#ffd700"></i> ' : '<i class="fa-solid fa-link" style="color:rgba(255,255,255,0.2)"></i> '}${item.name.replace(/_/g, ' ')}</div>
+                            <div class="metrics-box"><span class="ctr-badge">${item.ctr}% CTR</span><span class="${trendClass}">${trendArrow}</span></div>
+                        </div>
+                        <b>${item.clicks.toLocaleString('de-DE')} Klicks</b>
+                    </div>`;
+            }).join('');
+
+            if (chartInstance) { chartInstance.destroy(); }
+            chartInstance = new Chart(document.getElementById('statsChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: filteredData.map(e => e.name.replace(/_/g, ' ')),
+                    datasets: [{ data: filteredData.map(e => e.clicks), backgroundColor: '#4682B4', borderRadius: 4, hoverBackgroundColor: '#fff' }]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#B0C4DE', font:{size:10} } },
+                        y: { grid: { display: false }, ticks: { color: '#4682B4', font: { size: 11, weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        function openDetails(linkName) {
+            const item = activeLinkData.find(e => e.name === linkName);
+            if(!item) return;
+
+            document.getElementById('modal-title').innerText = item.name.replace(/_/g, ' ');
+            document.getElementById('modal-stats-summary').innerText = `All-Time: ${item.totalAllTime.toLocaleString('de-DE')} Klicks | Im Filterzeitraum: ${item.clicks}`;
+            document.getElementById('detail-modal').style.display = 'flex';
+
+            if (modalChartInstance) { modalChartInstance.destroy(); }
+            modalChartInstance = new Chart(document.getElementById('modalChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: item.chartLabels.length > 0 ? item.chartLabels : ['Keine Daten'],
+                    datasets: [{ data: item.chartValues.length > 0 ? item.chartValues : [0], borderColor: '#4682B4', backgroundColor: 'rgba(70, 130, 180, 0.05)', fill: true, tension: 0.3, borderWidth: 2, pointBackgroundColor: '#fff' }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666', font:{size:10} } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666', font:{size:10} } }
+                    }
+                }
+            });
+        }
+
+        function closeModal(e) { if(e.target.id === 'detail-modal') { document.getElementById('detail-modal').style.display = 'none'; } }
+
+        function exportData() {
+            let csvContent = "data:text/csv;charset=utf-8,Link Name,Klicks,CTR\n";
+            activeLinkData.forEach(item => { csvContent += `"${item.name.replace(/_/g, ' ')}",${item.clicks},${item.ctr}%\n`; });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `nox_stats_${currentFilter}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
     </script>
 </body>
