@@ -7,7 +7,7 @@
   --line: rgba(255,255,255,0.08);
   --blue: #4682B4;
   --blue-soft: rgba(70, 130, 180, 0.12);
-  --pink: #F00FD6;
+  --pink: #00AEEF;
 }
 * { box-sizing: border-box; }
 body, html {
@@ -94,7 +94,7 @@ h1 { font-size: 22px; font-weight: 700; margin: 0; color: var(--ink); letter-spa
   transform: scale(0.94); opacity: 0; transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
 }
 .age-gate-overlay.open .age-gate-box { transform: scale(1); opacity: 1; }
-.age-gate-box .icon-circle { width: 44px; height: 44px; border-radius: 50%; background: rgba(240,15,214,0.14); color: var(--pink); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; font-size: 18px; }
+.age-gate-box .icon-circle { width: 44px; height: 44px; border-radius: 50%; background: rgba(0,174,239,0.14); color: var(--pink); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; font-size: 18px; }
 .age-gate-box h2 { color: var(--ink); font-size: 18px; font-weight: 700; margin: 0; }
 .age-gate-box p { color: var(--ink-dim); font-size: 13.5px; margin: 10px 0 22px 0; line-height: 1.55; }
 .age-gate-box .yes-btn { padding: 12px 24px; background: var(--blue); border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; color: #fff; font-family: inherit; }
