@@ -1,113 +1,69 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Nox | Blu</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    :root { --primary: #4682B4; --accent: #B0C4DE; --bg: #050505; --card-bg: rgba(20, 30, 45, 0.7); }
-    * { box-sizing: border-box; }
-    body, html { margin: 0; padding: 0; width: 100%; height: 100%; height: 100dvh; background-color: var(--bg); color: var(--primary); font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden !important; }
-    .bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; filter: brightness(0.4); }
-    .main-wrapper { position: relative; z-index: 2; height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px; }
-    .profile-card { width: 100%; max-width: 640px; background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(70, 130, 180, 0.3); padding: 25px 20px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: space-between; opacity: 0; transition: opacity 0.4s ease; }
-    .avatar-box { width: 110px; height: 110px; margin: 0 auto 15px auto; position: relative; flex-shrink: 0; }
-    .avatar-img { width: 100%; height: 100%; border-radius: 32px; object-fit: cover; border: 3px solid var(--primary); }
-    h1 { font-size: 32px; font-weight: 600; margin: 0; color: var(--primary); display: inline-flex; align-items: center; gap: 8px; }
-    .sub-bio { color: var(--accent); font-size: 15px; margin: 6px 0 15px 0; line-height: 1.4; padding: 0 5px; }
-    .guns-discord-widget { background: rgba(0, 0, 0, 0.5); border-radius: 16px; padding: 10px 16px; margin: 0 auto 15px auto; width: 100%; max-width: 310px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--primary); cursor: pointer; flex-shrink: 0; }
-    .widget-status-dot { width: 13px; height: 13px; border-radius: 50%; background-color: #747f8d; border: 2px solid #111; position: absolute; bottom: -2px; right: -2px; }
-    .social-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; flex-shrink: 0; min-height: 42px; }
-    .social-icon { width: 40px; height: 40px; background: rgba(70, 130, 180, 0.2); border: 1px solid rgba(70, 130, 180, 0.3); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.3s; color: var(--primary); overflow: hidden; }
-    .social-icon img { width: 20px; height: 20px; object-fit: contain; }
-    .social-icon:hover { background: var(--primary); color: white; transform: scale(1.1); }
-    .btn-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-    .links-card { background: rgba(70, 130, 180, 0.1); border: 1px solid rgba(70, 130, 180, 0.3); padding: 14px 22px; border-radius: 12px; color: var(--primary); text-decoration: none !important; font-weight: 600; font-size: 16px; display: flex; justify-content: space-between; cursor: pointer; align-items: center; transition: all 0.2s; }
-    .links-card:hover { background: rgba(70, 130, 180, 0.25); border-color: var(--primary); transform: translateY(-1px); }
-    .badge-18 { font-size: 10px; background: rgba(70, 130, 180, 0.5); color: white; padding: 2px 6px; border-radius: 6px; font-weight: bold; }
-    .age-gate-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: none; justify-content: center; align-items: center; }
-    .age-gate-box { background: #111; border: 1px solid var(--primary); border-radius: 20px; padding: 35px 25px; text-align: center; width: 100%; max-width: 400px; }
-  </style>
-</head>
-<body>
-  <script src="https://unpkg.com/shimeji-js"></script>
-  <script>window.onload = function() { new Shimeji({ directory: 'https://unpkg.com/shimeji-js/assets/', sprite: 'cat' }); };</script>
-  <div id="age-gate" class="age-gate-overlay"><div class="age-gate-box"><h2 style="color:white;">Confirm Age</h2><div style="display: flex; gap: 12px; justify-content: center;"><button onclick="go()" style="padding:12px 30px; background:var(--primary); border:none; color:white; font-weight:bold; cursor:pointer;">Yes (18+)</button><button onclick="hide()" style="padding:12px 30px; background:transparent; color:white; border:1px solid var(--primary); cursor:pointer;">Close</button></div></div></div>
-  <div class="bg-layer" id="live-bg"></div>
-  <div class="main-wrapper">
-    <div class="profile-card" id="card">
-      <div>
-        <div class="avatar-box"><img id="avatar" class="avatar-img" src=""></div>
-        <h1 id="live-title"></h1>
-        <div class="sub-bio" id="live-bio"></div>
+  <html lang="de">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>Nox | Blu</title>
+
+    <meta property="og:title" content="Nox | Blu">
+    <meta property="og:site_name" content="nox.contact">
+    <meta property="og:description" content="Hey, schön dass du hergefunden hast. Ich bin Nox, ein 29 jähriger Furry aus Deutschland.">
+    <meta property="og:url" content="https://nox.contact/">
+    <meta property="og:type" content="website">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <div id="age-gate" class="age-gate-overlay">
+      <div class="age-gate-box">
+        <div class="icon-circle"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h2>Confirm Age</h2>
+        <p>This content is restricted to 18+. Are you old enough to continue?</p>
+        <div class="age-gate-actions">
+          <button onclick="go()" class="yes-btn">Yes (18+)</button>
+          <button onclick="hide()" class="no-btn">Close</button>
+        </div>
       </div>
-      <div id="dynamic-widget-area"></div>
-      <div class="social-row" id="dynamic-social-container"></div>
-      <div class="btn-list" id="dynamic-links-container"></div>
-      <div class="footer"><span class="view-counter-box">Besucher: <span id="view-count">...</span></span><span>| made with ❤️ from <a href="https://Reekey.de" target="_blank">Reekey.de</a></span></div>
+    </div>
+
+    <div class="bg-layer" id="live-bg"></div>
+    <div class="main-wrapper">
+      <div class="profile-card" id="card">
+        <div>
+          <div class="avatar-box">
+            <img id="avatar" class="avatar-img" src="">
+            <div class="avatar-ring"></div>
+            <div class="status-corner"><i class="fa-solid fa-check"></i></div>
+          </div>
+        </div>
+        <div>
+          <h1 id="live-title"></h1>
+          <div class="sub-bio" id="live-bio"></div>
+        </div>
+
+        <div id="dynamic-widget-area"></div>
+
+        <div class="social-row" id="dynamic-social-container"></div>
+
+        <div class="btn-list" id="dynamic-links-container"></div>
+
+        <div class="footer">
+          <div class="footer-links">
+            <span class="view-counter-box">👁 <span id="view-count">...</span></span>
+            <span>·</span>
+            <span><a href="https://reekey.de">reekey.de</a></span>
+          </div>
+          <div class="footer-made-by">
+            © 2026 — made with ❤️ from <a href="https://reekey.de">reekey.de</a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script>
-    let url = "", discordUserId = "324617277393600513";
-    const TRACKER_URL = 'https://link-tracker2.morning-surf-02e1.workers.dev/track';
-
-    async function loadPageStructure() {
-        const config = await fetch(TRACKER_URL.replace('/track', '/config')).then(res => res.json());
-        document.getElementById('avatar').src = config.avatar;
-        document.getElementById('live-title').innerHTML = `${config.title}<i class="fa-solid fa-circle-check" style="font-size:20px; margin-left:8px;"></i>`;
-        document.getElementById('live-bio').innerText = config.bio;
-        document.getElementById('live-bg').style.backgroundImage = `url('${config.background}')`;
-        document.getElementById('card').style.opacity = "1";
-        fetchDynamicLinks();
-    }
-
-    function fetchDynamicLinks() {
-        fetch(TRACKER_URL.replace('/track', '/links')).then(res => res.json()).then(links => {
-            const buttonContainer = document.getElementById('dynamic-links-container');
-            const socialContainer = document.getElementById('dynamic-social-container');
-            const widgetArea = document.getElementById('dynamic-widget-area');
-            buttonContainer.innerHTML = ''; socialContainer.innerHTML = '';
-            
-            const widgetData = links.find(l => l.link_type === 'widget');
-            if (widgetData && widgetArea) {
-                if(widgetData.url.includes('users/')) discordUserId = widgetData.url.split('users/')[1].replace(/\//g, '');
-                widgetArea.innerHTML = `<div class="guns-discord-widget" onclick="track('Discord_Profile', '${widgetData.url}')"><div style="position:relative; flex-shrink: 0;"><img style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" src="${document.getElementById('avatar').src}"><div id="widget-dot" class="widget-status-dot"></div></div><div style="color:white; text-align:left; margin-left:12px; width:100%; overflow: hidden;"><div style="font-weight:700; font-size:14px;">${widgetData.title}</div><div id="widget-activity" style="color:var(--primary); font-size:12px; font-weight:600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Loading...</div></div></div>`;
-            }
-
-            links.forEach(l => {
-                const trackingName = l.title.replace(/ /g, '_');
-                let iconHtml = l.icon ? (l.icon.startsWith('http') || l.icon.includes('simpleicons.org') ? `<img src="${l.icon}" style="width:20px; height:20px; object-fit:contain; ${l.link_type==='button'?'margin-right:12px;':''}">` : `<i class="${l.icon}" style="${l.link_type==='button'?'width:18px; margin-right:12px;':''}"></i>`) : '';
-                if (l.link_type === 'social') {
-                    socialContainer.innerHTML += `<a class="social-icon" onclick="${l.is_nsfw === 1 ? `gate('${l.url}', '${trackingName}')` : `track('${trackingName}', '${l.url}')`}">${iconHtml || '<i class="fa-solid fa-link"></i>'}</a>`;
-                } else if (l.link_type === 'button') {
-                    buttonContainer.innerHTML += `<div class="links-card" onclick="${l.is_nsfw === 1 ? `gate('${l.url}', '${trackingName}')` : `track('${trackingName}', '${l.url}')`}"><span style="display:flex; align-items:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${iconHtml}${l.title}</span>${l.is_nsfw === 1 ? '<span class="badge-18">18+</span>':''}</div>`;
-                }
-            });
-            updateStatus();
-        });
-    }
-
-    function countView() { if (!sessionStorage.getItem('viewed_reekey')) { fetch(TRACKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ link: 'reekey_de_views' }) }).then(() => { sessionStorage.setItem('viewed_reekey', 'true'); getSQLViews(); }).catch(e => { getSQLViews(); }); } else { getSQLViews(); } }
-    function getSQLViews() { fetch(TRACKER_URL.replace('/track', '/stats')).then(res => res.json()).then(data => { document.getElementById('view-count').innerText = (data.allTime['reekey_de_views'] || 0).toLocaleString('de-DE'); }); }
-    function track(name, u) { fetch(TRACKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ link: name }) }); if (u) window.open(u, '_blank'); }
-    function gate(u, name) { url = u; track(name); const el = document.getElementById('age-gate'); el.style.display = 'flex'; }
-    function hide() { document.getElementById('age-gate').style.display = 'none'; }
-    function go() { window.open(url, '_blank'); hide(); }
-
-    async function updateStatus() {
-        try {
-            const d = (await fetch(`https://api.lanyard.rest/v1/users/${discordUserId}`).then(res => res.json())).data;
-            if(document.getElementById('widget-dot')) document.getElementById('widget-dot').style.backgroundColor = { 'online': '#43b581', 'idle': '#faa61a', 'dnd': '#f04747', 'offline': '#747f8d' }[d.discord_status] || '#747f8d';
-            const game = d.activities.find(a => a.type === 0);
-            const text = document.getElementById('widget-activity');
-            if (d.spotify) { if(text) text.innerText = `🎵 ${d.spotify.song} – ${d.spotify.artist}`; } 
-            else { if(text) text.innerText = game ? `🎮 ${game.name}` : d.discord_status.charAt(0).toUpperCase() + d.discord_status.slice(1); }
-        } catch(e) {}
-    }
-
-    loadPageStructure(); countView(); setInterval(updateStatus, 10000);
-  </script>
+  <script src="/script.js"></script>
 </body>
 </html>
