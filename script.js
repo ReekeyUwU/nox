@@ -1,4 +1,3 @@
-
 let url = "";
 let discordUserId = "324617277393600513";
 const TRACKER_URL = 'https://link-tracker2.morning-surf-02e1.workers.dev/track';
@@ -25,7 +24,7 @@ function fetchDynamicLinks() {
         const widgetData = links.find(l => l.link_type === 'widget');
         if (widgetData && widgetArea) {
             if(widgetData.url.includes('users/')) discordUserId = widgetData.url.split('users/')[1].replace(/\//g, '');
-            widgetArea.innerHTML = `<div class="status-widget"><div class="status-row discord-row" onclick="track('${widgetData.title.replace(/ /g, '_')}', '${widgetData.url}')"><div class="avatar-mini"><img src="${document.getElementById('avatar').src}"><div id="widget-dot" class="widget-status-dot"></div></div><div class="widget-info"><div class="widget-name">${widgetData.title}</div><div id="widget-activity" class="widget-activity">Lädt...</div></div><span class="status-chip" id="widget-status-label"></span></div><div class="status-row spotify-row"><div id="spotify-bg" class="spotify-bg-blur"></div><i class="fa-brands fa-spotify spotify-icon"></i><div class="marquee-container"><div id="music-widget" class="marquee-text">Wird geladen...</div></div><div id="audio-eq" class="eq-container"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div></div></div>`;
+            widgetArea.innerHTML = `<div class="status-widget"><div class="status-row discord-row" onclick="track('${widgetData.title.replace(/ /g, '_')}', '${widgetData.url}')"><div class="avatar-mini"><img src="${document.getElementById('avatar').src}"><div id="widget-dot" class="widget-status-dot"></div></div><div class="widget-info"><div class="widget-name">${widgetData.title}</div><div id="widget-activity" class="widget-activity">Lädt...</div></div><span class="status-chip" id="widget-status-label"></span></div></div>`;
         }
 
         links.forEach(l => {
@@ -37,7 +36,7 @@ function fetchDynamicLinks() {
                 buttonContainer.innerHTML += `<div class="links-card" onclick="${l.is_nsfw === 1 || l.is_nsfw === true ? `gate('${l.url}', '${trackingName}')` : `track('${trackingName}', '${l.url}')`}"><span class="link-label"><span class="link-icon">${iconClass}</span><span class="link-title">${l.title}</span></span><span class="link-meta">${(l.is_nsfw === 1 || l.is_nsfw === true) ? '<span class="badge-18">18+</span>' : '<i class="fa-solid fa-chevron-right chevron"></i>'}</span></div>`;
             }
         });
-        updateStatus(); updateMusicStatus();
+        updateStatus();
     });
 }
 
@@ -87,17 +86,6 @@ async function updateStatus() {
     } catch(e) {}
 }
 
-async function updateMusicStatus() {
-    try {
-        const d = (await fetch(`https://api.lanyard.rest/v1/users/${discordUserId}`).then(res => res.json())).data;
-        const m = document.getElementById('music-widget'), bg = document.getElementById('spotify-bg'), eq = document.getElementById('audio-eq');
-        if (!m) return;
-        if (!d.spotify) { m.innerText = "Läuft gerade nichts"; if(bg) bg.style.opacity = "0"; if(eq) eq.style.display = "none"; }
-        else { m.innerText = `${d.spotify.song} – ${d.spotify.artist}`; if (d.spotify.album_art_url && bg) { bg.style.backgroundImage = `url('${d.spotify.album_art_url}')`; bg.style.opacity = "1"; } if(eq) eq.style.display = "flex"; }
-    } catch(e) { }
-}
-
 loadPageStructure();
 countView();
 setInterval(updateStatus, 10000);
-setInterval(updateMusicStatus, 30000);
